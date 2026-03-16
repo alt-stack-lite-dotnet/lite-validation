@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using Lite.Validation;
+using Lite.Validation.Fluent;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Lite.Validation.Integration.DependencyInjection;
@@ -54,7 +55,32 @@ public static class ServiceCollectionExtensions
                 continue;
             if (services.Any(d => d.ServiceType == iface && d.ImplementationType == implementationType))
                 continue;
-            services.Add(new ServiceDescriptor(iface, implementationType, lifetime));
+            var validatedType = iface.GetGenericArguments()[0];
+            var factory = CreateValidatorFactory(implementationType, validatedType);
+            services.Add(new ServiceDescriptor(iface, factory, lifetime));
         }
+    }
+
+    private static Func<IServiceProvider, object> CreateValidatorFactory(Type implementationType, Type validatedType)
+    {
+        var builderType = typeof(ValidationBuilder<>).MakeGenericType(validatedType);
+        var ctors = implementationType.GetConstructors();
+        if (ctors.Length == 0)
+            return sp => throw new InvalidOperationException($"Validator {implementationType.Name} has no public constructor.");
+        var ctor = ctors.OrderByDescending(c => c.GetParameters().Length).First();
+        var parameters = ctor.GetParameters();
+        return sp =>
+        {
+            var args = new object?[parameters.Length];
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var p = parameters[i];
+                if (p.ParameterType == builderType)
+                    args[i] = Activator.CreateInstance(builderType);
+                else
+                    args[i] = sp.GetService(p.ParameterType);
+            }
+            return ctor.Invoke(args);
+        };
     }
 }

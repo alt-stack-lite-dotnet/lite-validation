@@ -1,27 +1,30 @@
-# CI: при пуше/мерже в develop или master — сборка и тесты; при пуше тега (v*) — выкладка пакетов.
+# CI: при пуше в любую ветку — сборка и тесты.
+# Выкладка на NuGet только при пуше тега (v*) с ветки release.
 name: CI
 
 on:
   push:
-    branches: [ develop, master ]
-    tags: [ 'v*' ]
   pull_request:
-    branches: [ develop, master ]
   workflow_dispatch:   # Ручной запуск: Actions → CI → Run workflow
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  RELEASE_BRANCH: release   # только теги с этой ветки триггерят pack + push
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '10.0.x'
+      - name: Install .NET SDK
+        run: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0 --install-dir $HOME/.dotnet
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+          echo "PATH=$HOME/.dotnet:$PATH" >> $GITHUB_ENV
 
       - name: Dotnet version
         run: dotnet --version
@@ -43,11 +46,23 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          fetch-depth: 0
+
+      - name: Ensure tag is on release branch
+        run: |
+          git fetch origin "${{ env.RELEASE_BRANCH }}"
+          if ! git branch -r --contains $GITHUB_SHA | grep -q "origin/${{ env.RELEASE_BRANCH }}"; then
+            echo "::error::Tag must point to a commit on branch '${{ env.RELEASE_BRANCH }}'. Push the tag from ${{ env.RELEASE_BRANCH }} or merge your changes there first."
+            exit 1
+          fi
+
+      - name: Install .NET SDK
+        run: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --channel 10.0 --install-dir $HOME/.dotnet
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+          echo "PATH=$HOME/.dotnet:$PATH" >> $GITHUB_ENV
 
       - name: Restore
         run: dotnet restore Lite.Validation.sln

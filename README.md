@@ -1,19 +1,23 @@
 # Lite.Validation
 
-**Лёгкая валидация для .NET без магии и без лишних аллокаций.** Fluent API, опциональный source generator для нулевого оверхеда, интеграции с ASP.NET Core (MVC, FastEndpoints) и DI.
+Библиотека валидации для .NET, заточенная под производительность и минимальное давление на GC. Fluent API, опциональный source generator, интеграции с ASP.NET Core (MVC, FastEndpoints) и DI.
 
-Цель — ZO/ZH/SG-first либа для валидации: zero overhead, zero heap там, где возможно, и опора на source generator.
+**NuGet:** [Lite.Validation](https://www.nuget.org/packages/Lite.Validation/)  
+**Бенчмарки (статья с цифрами):** [BENCHMARKS.md](BENCHMARKS.md)
 
 ---
 
-## Зачем это
+## Зачем это нужно
 
-- **Простой fluent API** — `RuleFor(x => x.Name).NotEmpty().WithDetails("...")`, синхронные и асинхронные правила.
-- **Source generator** — можно описать правила через `FluentValidator<T>` + `partial class`; генератор выдаёт готовый `Validate()`/`ValidateAsync()` без рефлексии и `Expression.Compile`, только инлайнящийся код.
-- **Мало зависимостей** — ядро на `netstandard2.1`, генератор — отдельный пакет, подключаешь только то, что нужно.
-- **Интеграция с ASP.NET Core** — автоматическая валидация в MVC и FastEndpoints, регистрация валидаторов через DI.
+Валидация в веб-API вызывается на каждый запрос. В высоконагруженных сервисах это hot path: лишние наносекунды и аллокации складываются в миллисекунды и в постоянную нагрузку на сборщик мусора. Классические решения вроде FluentValidation или DataAnnotations удобны, но на каждый вызов тянут за собой рефлексию, скомпилированные делегаты, аллокации под результат и коллекции ошибок — в десятки раз больше времени и памяти, чем минимально необходимо.
 
-Если тебе надоели тяжёлые или неудобные валидаторы и хочется чего-то своего — добро пожаловать.
+Lite.Validation решает эту задачу иначе:
+
+- **Source generator** генерирует код валидации на этапе компиляции. Никакой рефлексии и `Expression.Compile` в рантайме — только прямой код, который JIT хорошо инлайнит.
+- **Нулевые аллокации на успешной валидации**: результат — структура, список ошибок создаётся только при наличии ошибок.
+- **Тот же привычный fluent-подход** — правила описываются в коде через `RuleFor`, цепочки правил, условия, вложенные валидаторы. Можно начать с runtime-варианта (`LiteValidator` + билдер) и позже перейти на source-generated без смены API.
+
+Итог: в бенчмарках при тех же правилах мы обходим FluentValidation по времени в десятки раз и многократно снижаем аллокации и число Gen0-сборок на 10 000 запросов. Подробные цифры, таблицы и комментарии — в [BENCHMARKS.md](BENCHMARKS.md).
 
 ---
 
@@ -21,18 +25,20 @@
 
 | Пакет | Описание |
 |-------|----------|
-| **Lite.Validation** | Ядро: `IValidator<T>`, `FluentValidator<T>`, `LiteValidator<T>`, встроенные правила. |
-| **Lite.Validation.SourceGenerator** | Roslyn source generator: генерация валидаторов из `FluentValidator<T>` на этапе компиляции. |
+| [**Lite.Validation**](https://www.nuget.org/packages/Lite.Validation/) | Ядро: `IValidator<T>`, `FluentValidator<T>`, `LiteValidator<T>`, встроенные правила. |
+| **Lite.Validation.SourceGenerator** | Roslyn source generator: генерация `Validate()`/`ValidateAsync()` из `FluentValidator<T>` при компиляции. |
 | **Lite.Validation.Rules.Inline** | Дополнительные inline-правила (подключается ядром). |
 | **Lite.Validation.Integration.DependencyInjection** | `AddLiteValidatorsFromAssembly()` и регистрация в `IServiceCollection`. |
-| **Lite.Validation.Integration.AspNetCore.Mvc** | Поддержка ASP.NET Core MVC (модель и фильтры). |
-| **Lite.Validation.Integration.AspNetCore.FastEndpoints** | Поддержка [FastEndpoints](https://fast-endpoints.com/). |
+| **Lite.Validation.Integration.AspNetCore.Mvc** | Интеграция с ASP.NET Core MVC. |
+| **Lite.Validation.Integration.AspNetCore.FastEndpoints** | Интеграция с [FastEndpoints](https://fast-endpoints.com/). |
 
 ---
 
 ## Быстрый старт
 
-### Ручная конфигурация (LiteValidator)
+### Вариант с ручной конфигурацией (LiteValidator)
+
+Подходит, когда валидатор создаётся вручную или через DI с передачей билдера. Правила задаются в конструкторе.
 
 ```csharp
 public partial class CreateOrderValidator : LiteValidator<CreateOrderRequest>
@@ -48,9 +54,9 @@ public partial class CreateOrderValidator : LiteValidator<CreateOrderRequest>
 }
 ```
 
-### Source-generated (FluentValidator + генератор)
+### Вариант с source generator (FluentValidator)
 
-Подключи пакет **Lite.Validation.SourceGenerator**, затем:
+Подключи пакет **Lite.Validation.SourceGenerator**. Правила описываются в статическом `Configure`; генератор создаёт реализацию валидатора в compile time — без рефлексии и лишних аллокаций.
 
 ```csharp
 public partial class OrderFluentValidator : FluentValidator<CreateOrderRequest>
@@ -63,9 +69,7 @@ public partial class OrderFluentValidator : FluentValidator<CreateOrderRequest>
 }
 ```
 
-Генератор создаёт реализацию `Validate()`/`ValidateAsync()` на этапе компиляции — без рефлексии и лишних аллокаций.
-
-### DI
+### Регистрация в DI
 
 ```csharp
 services.AddLiteValidatorsFromAssemblyOf<OrderFluentValidator>(ServiceLifetime.Singleton);
@@ -74,8 +78,6 @@ services.AddLiteValidatorsFromAssemblyOf<OrderFluentValidator>(ServiceLifetime.S
 ---
 
 ## Сборка и тесты
-
-Решение собирает все проекты (sources, test, benchmarks). Для валидации и бенчмарков используй этот sln:
 
 ```bash
 dotnet build Lite.Validation.sln
@@ -86,47 +88,41 @@ dotnet test Lite.Validation.sln --no-build
 
 ## Бенчмарки
 
-Сравнение с **FluentValidation** и **DataAnnotations** при одинаковых правилах (Name, Email, Age). Запуск:
+Подробная статья с замерами против FluentValidation и DataAnnotations, разбором по одному запросу и по 10 000 запросов (время, аллокации, оценка Gen0): **[BENCHMARKS.md](BENCHMARKS.md)**.
+
+Запуск бенчмарков локально:
 
 ```bash
-dotnet run --project benchmarks/Lite.Validation.Benchmarks/Lite.Validation.Benchmarks.csproj -c Release -- --filter "*SimpleValidation*"
+dotnet run -c Release --project benchmarks/Lite.Validation.Benchmarks -- --filter "*SimpleValidation*"
+dotnet run -c Release --project benchmarks/Lite.Validation.Benchmarks -- --filter "*HighVolume*"
 ```
 
-| Вариант | Valid (время) | Invalid (время) | Аллокации (Valid) |
-|--------|----------------|-----------------|-------------------|
-| FluentValidation (baseline) | 1.00× | 1.00× | baseline |
-| **Lite.Validation (Runtime)** | см. вывод | см. вывод | обычно меньше |
-| **Lite.Validation (Source-generated)** | быстрее | быстрее | минимум |
-| DataAnnotations | см. вывод | см. вывод | см. вывод |
-
-Source-generated вариант без рефлексии и `Expression.Compile` — ожидаемо быстрее и с меньшими аллокациями. Бенчмарки ASP.NET Core (MVC endpoint): проект `Lite.Validation.Benchmarks.AspNetCore`, класс `AspNetCoreValidationBenchmark`.
+Отчёты (Markdown/HTML) сохраняются в `BenchmarkDotNet.Artifacts/results/`.
 
 ---
 
-## Разработка: зависимости и хуки
+## Разработка: окружение и хуки
 
-Установка окружения (mise + Python venv + pre-commit + dotnet tools):
+Установка (mise, Python venv, pre-commit, dotnet tools):
 
 - **Windows (PowerShell):** `.\install.ps1`
-- **Linux/macOS (Bash):** `./install.sh` (при необходимости: `chmod +x install.sh`)
+- **Linux/macOS:** `./install.sh` (при необходимости: `chmod +x install.sh`)
 
-После установки при **коммите** запускаются форматтер (CSharpier) и сборка; при **пуше** — сборка и тесты.
+При коммите запускаются форматтер (CSharpier) и сборка; при пуше — сборка и тесты.
 
-**Проверить, что хуки стоят:**
+Проверка хуков:
 
 ```bash
 ls .git/hooks/pre-commit .git/hooks/pre-push
 ```
 
-**Запустить проверки вручную (без коммита):**
+Ручной прогон:
 
 ```bash
-pre-commit run --all-files          # все хуки pre-commit
-pre-commit run --hook-stage push --all-files   # хуки pre-push
+pre-commit run --all-files
+pre-commit run --hook-stage push --all-files
 ```
 
-Если хуки не срабатывают при `git commit` / `git push`, переустанови: из корня репо выполни `pre-commit install` и `pre-commit install --hook-type pre-push`. На Windows убедись, что `git commit` запускается из терминала, где доступны `sh` и `python` (например, Git Bash или PowerShell после установки через install.ps1).
+Если хуки не срабатывают: из корня выполни `pre-commit install` и `pre-commit install --hook-type pre-push`.
 
-**VS Code / Cursor:** в `.vscode/` лежат рекомендуемые расширения (`extensions.json`) и форматирование при сохранении (`settings.json`: CSharpier как форматтер для C#). При открытии репо IDE предложит установить расширения из списка.
-
----
+В `.vscode/` — рекомендуемые расширения и настройки (CSharpier, format on save).

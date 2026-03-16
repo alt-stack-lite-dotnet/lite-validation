@@ -9,6 +9,8 @@ public class DependencyInjectionTests
     private static ServiceProvider BuildProvider(ServiceLifetime lifetime = ServiceLifetime.Transient)
     {
         var services = new ServiceCollection();
+        services.AddSingleton<IClock>(new StubClock());
+        services.AddSingleton<IDiscountService>(new StubDiscountService());
         services.AddLiteValidatorsFromAssemblyOf<DependencyInjectionTests>(lifetime);
         return services.BuildServiceProvider();
     }
