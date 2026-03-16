@@ -6,6 +6,7 @@ on:
     tags: [ 'v*' ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:   # Ручной запуск: Actions → CI → Run workflow
 
 jobs:
   build:
@@ -55,7 +56,6 @@ jobs:
           path: nupkgs/*.nupkg
 
       - name: Push to NuGet.org
-        if: ${{ secrets.NUGET_API_KEY != '' }}
         run: |
           for f in nupkgs/*.nupkg; do
             dotnet nuget push "$f" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
