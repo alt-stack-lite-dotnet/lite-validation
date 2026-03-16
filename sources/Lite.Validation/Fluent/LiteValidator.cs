@@ -37,8 +37,19 @@ public class LiteValidator<T> : IValidator<T>, IAsyncValidator<T>
     {
         var result = new ValidationResult();
         var compiled = Compiled;
+        var addedCount = new int[compiled.Length];
         for (var i = 0; i < compiled.Length; i++)
+        {
+            if (compiled[i].DependencyValidatorIndex >= 0)
+            {
+                var parentIdx = compiled[i].DependencyValidatorIndex;
+                if (parentIdx < addedCount.Length && addedCount[parentIdx] > 0)
+                    continue;
+            }
+            var before = result.ErrorCount;
             compiled[i].Validate(target, ref result);
+            addedCount[i] = result.ErrorCount - before;
+        }
         return result;
     }
 
@@ -49,11 +60,22 @@ public class LiteValidator<T> : IValidator<T>, IAsyncValidator<T>
 
         var result = new ValidationResult();
         var compiled = Compiled;
+        var addedCount = new int[compiled.Length];
         for (var i = 0; i < compiled.Length; i++)
         {
+            if (compiled[i].DependencyValidatorIndex >= 0)
+            {
+                var parentIdx = compiled[i].DependencyValidatorIndex;
+                if (parentIdx < addedCount.Length && addedCount[parentIdx] > 0)
+                    continue;
+            }
+            var before = result.ErrorCount;
             var list = await compiled[i].ValidateAsync(target, cancellationToken).ConfigureAwait(false);
             if (list is not null && list.Count > 0)
+            {
                 result.AddRange(list);
+                addedCount[i] = list.Count;
+            }
         }
         return result;
     }

@@ -32,11 +32,11 @@ public class CascadeModeTests
             RuleLevelCascadeMode = CascadeMode.Continue
         };
         builder.RuleFor(x => x.Value)
-            .GreaterThan(0).WithDetails("must be > 0")
-            .LessThan(10).WithDetails("must be < 10");
+            .GreaterThan(10).WithDetails("must be > 10")
+            .LessThan(0).WithDetails("must be < 0");
 
         var validator = new LiteValidator<CascadeModel>(builder);
-        var result = validator.Validate(new CascadeModel(-5)); // fails both
+        var result = validator.Validate(new CascadeModel(5)); // 5 fails both: not > 10, not < 0
 
         Assert.False(result.IsSuccess);
         Assert.Equal(2, result.ErrorCount);
