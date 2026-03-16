@@ -1,12 +1,12 @@
-# CI: при пуше/мерже в develop или master — сборка и тесты; при пуше тега (v*) — выкладка пакетов.
+# CI: при пуше в любую ветку — сборка и тесты; при пуше тега (v*) — выкладка пакетов.
 name: CI
 
 on:
   push:
-    branches: [ develop, master ]
+    branches: ['*']
     tags: [ 'v*' ]
   pull_request:
-    branches: [ develop, master ]
+    branches: ['*']
   workflow_dispatch:   # Ручной запуск: Actions → CI → Run workflow
 
 env:
