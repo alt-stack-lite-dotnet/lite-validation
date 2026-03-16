@@ -8,14 +8,14 @@ on:
   workflow_dispatch:   # Ручной запуск: Actions → CI → Run workflow
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
   RELEASE_BRANCH: release   # только теги с этой ветки триггерят pack + push
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     steps:
       - uses: actions/checkout@v4
 
@@ -51,7 +51,11 @@ jobs:
 
       - name: Ensure tag is on release branch
         run: |
-          git fetch origin "${{ env.RELEASE_BRANCH }}"
+          git fetch origin
+          if ! git show-ref -q "refs/remotes/origin/${{ env.RELEASE_BRANCH }}"; then
+            echo "::error::Branch '${{ env.RELEASE_BRANCH }}' not found. Create and push it, then push the tag from that branch."
+            exit 1
+          fi
           if ! git branch -r --contains $GITHUB_SHA | grep -q "origin/${{ env.RELEASE_BRANCH }}"; then
             echo "::error::Tag must point to a commit on branch '${{ env.RELEASE_BRANCH }}'. Push the tag from ${{ env.RELEASE_BRANCH }} or merge your changes there first."
             exit 1
@@ -67,11 +71,27 @@ jobs:
       - name: Restore
         run: dotnet restore Lite.Validation.sln
 
+      - name: Build
+        run: dotnet build Lite.Validation.sln -c Release --no-restore
+
       - name: Pack
         run: |
           VER="${{ github.ref_name }}"
           if [[ "$VER" == v* ]]; then VER="${VER#v}"; fi
-          dotnet pack Lite.Validation.sln -c Release --no-restore -o nupkgs -p:Version=$VER
+          mkdir -p nupkgs
+          for proj in \
+            sources/Lite.Validation.Rules.Inline/Lite.Validation.Rules.Inline.csproj \
+            sources/Lite.Validation/Lite.Validation.csproj \
+            sources/Lite.Validation.SourceGenerator/Lite.Validation.SourceGenerator.csproj \
+            sources/Lite.Validation.Integration.DependencyInjection/Lite.Validation.Integration.DependencyInjection.csproj \
+            sources/Lite.Validation.Integration.AspNetCore.Mvc/Lite.Validation.Integration.AspNetCore.Mvc.csproj \
+            sources/Lite.Validation.Integration.AspNetCore.FastEndpoints/Lite.Validation.Integration.AspNetCore.FastEndpoints.csproj; do
+            dotnet pack "$proj" -c Release --no-restore --no-build -o nupkgs -p:Version=$VER
+          done
+          if ! compgen -G "nupkgs/*.nupkg" > /dev/null; then
+            echo "::error::No .nupkg files produced. Check pack output above."
+            exit 1
+          fi
 
       - name: Upload NuGet packages
         uses: actions/upload-artifact@v4
