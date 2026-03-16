@@ -7,7 +7,7 @@ nupkgs/
 .idea/
 *.iml
 .vs/
-.vscode/
+# .vscode/ — не игнорируем: коммитим extensions.json и settings.json
 *~
 *.swp
 *.swo
