@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/nuspec.xsd">
+  <metadata>
+    <id>Lite.Validation.SourceGenerator</id>
+    <version>0.1.0</version>
+    <authors>Lite Brewery</authors>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/your-org/Lite.Validation</projectUrl>
+    <repository type="git" url="https://github.com/your-org/Lite.Validation" />
+    <description>Compile-time source generator for Lite.Validation. Generates zero-overhead validators directly from IValidationDefinition implementations — no reflection, no Expression.Compile, pure inlined code.</description>
+    <tags>validation;source-generator;roslyn;compile-time;zero-alloc;zero-overhead;lite</tags>
+    <developmentDependency>true</developmentDependency>
+  </metadata>
+  <files />
+</package>

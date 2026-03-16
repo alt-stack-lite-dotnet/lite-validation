@@ -1,0 +1,20 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <Authors>Lite Brewery</Authors>
+    <Company>Lite Brewery</Company>
+    <Product>Lite.Validation</Product>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <Copyright>Copyright (c) Lite Brewery</Copyright>
+    <!-- RepositoryUrl: set in CI or override when pushing to NuGet -->
+    <RepositoryUrl>https://github.com/your-org/Lite.Validation</RepositoryUrl>
+    <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <!-- README in root: only pack for main libs (exclude analyzer and test projects) -->
+  <ItemGroup Condition="'$(IncludeReadmeInPack)' != 'false' and '$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
+</Project>

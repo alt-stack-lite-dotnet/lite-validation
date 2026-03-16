@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <PackageId>Lite.Validation</PackageId>
+        <Description>Lightweight validation for .NET: fluent API, sync/async rules, optional source generator for zero-overhead validators. No reflection, no Expression.Compile in generated path.</Description>
+        <PackageTags>validation;fluent;source-generator;lite;game-dev</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.Linq" />
+        <Using Include="System.Threading" />
+        <Using Include="System.Threading.Tasks" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Lite.Validation.Rules.Inline\Lite.Validation.Rules.Inline.csproj" />
+    </ItemGroup>
+
+</Project>

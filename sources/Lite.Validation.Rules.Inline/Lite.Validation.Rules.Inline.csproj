@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>Lite.Validation.Rules.Inline</PackageId>
+    <Description>Inline rule extensions for Lite.Validation. Additional validation rules used by the core library.</Description>
+    <PackageTags>validation;lite;rules</PackageTags>
+  </PropertyGroup>
+
+</Project>
+

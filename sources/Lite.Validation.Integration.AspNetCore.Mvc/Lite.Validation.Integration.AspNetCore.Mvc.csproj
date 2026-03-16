@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>Lite.Validation.Integration.AspNetCore.Mvc</PackageId>
+    <Description>ASP.NET Core MVC integration for Lite.Validation. Automatic model validation and filter support.</Description>
+    <PackageTags>validation;aspnetcore;mvc;lite</PackageTags>
+    <TargetFrameworks>net10.0;net8.0;net9.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lite.Validation\Lite.Validation.csproj" />
+  </ItemGroup>
+
+</Project>

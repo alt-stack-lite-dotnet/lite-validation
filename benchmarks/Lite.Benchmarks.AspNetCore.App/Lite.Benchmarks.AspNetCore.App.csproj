@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\sources\Lite.Validation\Lite.Validation.csproj" />
+    <ProjectReference Include="..\..\sources\Lite.Validation.DependencyInjection\Lite.Validation.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\sources\Lite.Validation.SourceGenerator\Lite.Validation.SourceGenerator.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+</Project>

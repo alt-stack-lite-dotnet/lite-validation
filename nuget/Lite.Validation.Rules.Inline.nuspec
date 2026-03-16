@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/nuspec.xsd">
+  <metadata>
+    <id>Lite.Validation.Rules.Inline</id>
+    <version>0.1.0</version>
+    <authors>Lite Brewery</authors>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/your-org/Lite.Validation</projectUrl>
+    <repository type="git" url="https://github.com/your-org/Lite.Validation" />
+    <description>Inline rule extensions for Lite.Validation. Additional validation rules used by the core library.</description>
+    <tags>validation;lite;rules</tags>
+  </metadata>
+  <files />
+</package>

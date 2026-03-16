@@ -1,0 +1,17 @@
+bin/
+obj/
+/packages/
+nupkgs/
+
+# IDE / editors
+.idea/
+*.iml
+.vs/
+.vscode/
+*~
+*.swp
+*.swo
+
+# ReSharper / Rider
+_ReSharper.Caches/
+*.DotSettings.user

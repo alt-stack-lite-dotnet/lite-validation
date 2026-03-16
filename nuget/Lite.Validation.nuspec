@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/nuspec.xsd">
+  <metadata>
+    <id>Lite.Validation</id>
+    <version>0.1.0</version>
+    <authors>Lite Brewery</authors>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/your-org/Lite.Validation</projectUrl>
+    <repository type="git" url="https://github.com/your-org/Lite.Validation" />
+    <description>Lightweight validation for .NET: fluent API, sync/async rules, optional source generator for zero-overhead validators. No reflection, no Expression.Compile in generated path.</description>
+    <tags>validation;fluent;source-generator;lite;game-dev</tags>
+    <readme>README.md</readme>
+  </metadata>
+  <files>
+    <!-- SDK-style: use dotnet pack from sources\Lite.Validation\Lite.Validation.csproj; this nuspec is a reference only -->
+  </files>
+</package>

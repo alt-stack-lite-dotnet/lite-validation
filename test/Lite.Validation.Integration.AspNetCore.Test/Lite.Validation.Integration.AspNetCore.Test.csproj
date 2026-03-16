@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\sources\Lite.Validation\Lite.Validation.csproj" />
+    <ProjectReference Include="..\..\sources\Lite.Validation.DependencyInjection\Lite.Validation.DependencyInjection.csproj" />
+    <ProjectReference Include="..\..\sources\Lite.Validation.Integration.AspNetCore.Mvc\Lite.Validation.Integration.AspNetCore.Mvc.csproj" />
+    <ProjectReference Include="..\..\sources\Lite.Validation.Integration.AspNetCore.FastEndpoints\Lite.Validation.Integration.AspNetCore.FastEndpoints.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

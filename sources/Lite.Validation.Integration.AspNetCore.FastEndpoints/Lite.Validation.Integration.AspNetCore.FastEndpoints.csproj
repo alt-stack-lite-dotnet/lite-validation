@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <PackageId>Lite.Validation.Integration.AspNetCore.FastEndpoints</PackageId>
+    <Description>FastEndpoints integration for Lite.Validation. Register validators and validate request DTOs with FastEndpoints.</Description>
+    <PackageTags>validation;aspnetcore;fastendpoints;lite</PackageTags>
+    <TargetFrameworks>net10.0;net8.0;net9.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FastEndpoints" Version="8.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lite.Validation\Lite.Validation.csproj" />
+  </ItemGroup>
+
+</Project>
