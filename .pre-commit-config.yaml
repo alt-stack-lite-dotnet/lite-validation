@@ -10,14 +10,14 @@ repos:
     hooks:
       - id: lint
         name: format (csharpier) & build
-        entry: python .config/run_lint.py
+        entry: sh .config/run_lint_wrapper.sh
         language: system
         stages: [commit]
         pass_filenames: false
 
       - id: push-check
         name: build & test
-        entry: python .config/run_pre_push.py
+        entry: sh .config/run_pre_push_wrapper.sh
         language: system
         stages: [push]
         pass_filenames: false

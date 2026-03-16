@@ -103,15 +103,30 @@ Source-generated вариант без рефлексии и `Expression.Compile
 
 ---
 
-## CI и публикация
+## Разработка: зависимости и хуки
 
-- **Сборка и тесты**: на каждый push в `main`/`master` и на PR запускаются `dotnet build` и `dotnet test`.
-- **Пакеты**: при пуше тега (например `v0.1.0`) собираются NuGet-пакеты и загружаются артефактом. Если в настройках репо задан секрет `NUGET_API_KEY`, пакеты автоматически пушатся на nuget.org. Подробно: [docs/PUBLISHING.md](docs/PUBLISHING.md).
+Установка окружения (mise + Python venv + pre-commit + dotnet tools):
 
-Перед первым пушем замени в `Directory.Build.props` и в `nuget/*.nuspec` URL репозитория на свой.
+- **Windows (PowerShell):** `.\install.ps1`
+- **Linux/macOS (Bash):** `./install.sh` (при необходимости: `chmod +x install.sh`)
+
+После установки при **коммите** запускаются форматтер (CSharpier) и сборка; при **пуше** — сборка и тесты.
+
+**Проверить, что хуки стоят:**
+
+```bash
+ls .git/hooks/pre-commit .git/hooks/pre-push
+```
+
+**Запустить проверки вручную (без коммита):**
+
+```bash
+pre-commit run --all-files          # все хуки pre-commit
+pre-commit run --hook-stage push --all-files   # хуки pre-push
+```
+
+Если хуки не срабатывают при `git commit` / `git push`, переустанови: из корня репо выполни `pre-commit install` и `pre-commit install --hook-type pre-push`. На Windows убедись, что `git commit` запускается из терминала, где доступны `sh` и `python` (например, Git Bash или PowerShell после установки через install.ps1).
+
+**VS Code / Cursor:** в `.vscode/` лежат рекомендуемые расширения (`extensions.json`) и форматирование при сохранении (`settings.json`: CSharpier как форматтер для C#). При открытии репо IDE предложит установить расширения из списка.
 
 ---
-
-## Лицензия
-
-См. репозиторий. Мы делаем это в свободное от разработки игр время и рады, если кому-то пригодится.
