@@ -11,7 +11,7 @@
     <!-- RepositoryUrl: set in CI or override when pushing to NuGet -->
     <RepositoryUrl>https://github.com/your-org/Lite.Validation</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReadmeFile Condition="'$(IncludeReadmeInPack)' != 'false'">README.md</PackageReadmeFile>
   </PropertyGroup>
   <!-- README in root: only pack for main libs (exclude analyzer and test projects) -->
   <ItemGroup Condition="'$(IncludeReadmeInPack)' != 'false' and '$(IsPackable)' == 'true'">

@@ -12,6 +12,7 @@
         <Description>Compile-time source generator for Lite.Validation. Generates zero-overhead validators directly from IValidationDefinition implementations — no reflection, no Expression.Compile, pure inlined code.</Description>
         <PackageTags>validation;source-generator;roslyn;compile-time;zero-alloc;zero-overhead;lite</PackageTags>
         <IncludeReadmeInPack>false</IncludeReadmeInPack>
+        <PackageReadmeFile></PackageReadmeFile>
 
         <!-- Source Generator packaging: place DLL in analyzers folder, not lib -->
         <IncludeBuildOutput>false</IncludeBuildOutput>
